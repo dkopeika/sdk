@@ -1,0 +1,59 @@
+// Import Web3 library
+const Web3 = require('web3');
+
+// Connect to a Web3 provider (replace 'YOUR_PROVIDER_URL' with the actual provider URL)
+const web3 = new Web3('YOUR_PROVIDER_URL');
+
+// Replace 'YOUR_PRIVATE_KEY' with the private key of the account sending the transaction
+const privateKey = 'YOUR_PRIVATE_KEY';
+
+// Create an account object from the private key
+const account = web3.eth.accounts.privateKeyToAccount(privateKey);
+
+// Set the default account to the one created from the private key
+web3.eth.accounts.wallet.add(account);
+web3.eth.defaultAccount = account.address;
+
+// Replace 'CONTRACT_ADDRESS' with the address of the smart contract you want to interact with
+const contractAddress = 'CONTRACT_ADDRESS';
+
+// Replace 'YOUR_ABI' with the ABI (Application Binary Interface) of the smart contract
+const contractABI = YOUR_ABI;
+
+// Create a contract instance
+const contract = new web3.eth.Contract(contractABI, contractAddress);
+
+// Define the transaction data (replace 'YOUR_METHOD' and 'YOUR_ARGUMENTS' accordingly)
+const transactionData = contract.methods.YOUR_METHOD(...YOUR_ARGUMENTS).encodeABI();
+
+// Set gas price and gas limit (replace 'YOUR_GAS_PRICE' and 'YOUR_GAS_LIMIT' accordingly)
+const gasPrice = 'YOUR_GAS_PRICE';
+const gasLimit = 'YOUR_GAS_LIMIT';
+
+// Build the transaction object
+const transactionObject = {
+  from: account.address,
+  to: contractAddress,
+  gasPrice: web3.utils.toHex(gasPrice),
+  gasLimit: web3.utils.toHex(gasLimit),
+  data: transactionData,
+};
+
+// Sign the transaction with the private key
+web3.eth.accounts.signTransaction(transactionObject, privateKey)
+  .then((signedTransaction) => {
+    // Send the signed transaction to the network
+    web3.eth.sendSignedTransaction(signedTransaction.rawTransaction)
+      .on('transactionHash', (hash) => {
+        console.log(`Transaction sent: ${hash}`);
+      })
+      .on('receipt', (receipt) => {
+        console.log(`Transaction receipt:`, receipt);
+      })
+      .on('error', (error) => {
+        console.error(`Transaction error:`, error);
+      });
+  })
+  .catch((error) => {
+    console.error(`Signing error:`, error);
+  });
